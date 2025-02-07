@@ -1,0 +1,99 @@
+x-ipfs-service: &ipfs-service
+  build: kubo
+  image: ipfs/kubo:no-connect
+  environment:
+    - AUTO_CONNECT=${TOPOLOGY:+false}
+  volumes:
+    - type: bind
+      source: ./swarm.key
+      target: /data/ipfs/swarm.key
+
+services:
+  scripts:
+    build: scripts
+    image: python_scripts
+    command: [ "bash", "run.sh" ]
+#    command: [ "tail", "-f", "/dev/null" ]
+    volumes:
+      - ./scripts:/scripts
+      - ./data-${TOPOLOGY:-normal}:/data
+    environment:
+      - TOPOLOGY=${TOPOLOGY}
+      - TOPOLOGY_LOG_FILE=/data/topology.csv
+      - SIMULATION_LOG_FILE=/data/ipfs_simulation.csv
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+
+  metrics_collector:
+    build:
+      context: metrics-collection
+    volumes:
+      - ./data-${TOPOLOGY:-normal}:/data
+    environment:
+      - CADVISOR_URL=http://cadvisor:8080
+      - PROJECT=ipfs-lab
+      - SERVICE_PREFIXES=ipfs
+      - COLLECTION_INTERVAL=5
+      - METRICS_FILE=/data/metrics.csv
+    depends_on:
+      - cadvisor
+
+  ipfs0:
+    <<: *ipfs-service
+
+  ipfs1:
+    <<: *ipfs-service
+
+  ipfs2:
+    <<: *ipfs-service
+
+  ipfs3:
+    <<: *ipfs-service
+
+  ipfs4:
+    <<: *ipfs-service
+
+  ipfs5:
+    <<: *ipfs-service
+
+  ipfs6:
+    <<: *ipfs-service
+
+  ipfs7:
+    <<: *ipfs-service
+
+  ipfs8:
+    <<: *ipfs-service
+
+  ipfs9:
+    <<: *ipfs-service
+
+  ipfs10:
+    <<: *ipfs-service
+
+  ipfs11:
+    <<: *ipfs-service
+
+  ipfs12:
+    <<: *ipfs-service
+
+  ipfs13:
+    <<: *ipfs-service
+
+  ipfs14:
+    <<: *ipfs-service
+
+  ipfs15:
+    <<: *ipfs-service
